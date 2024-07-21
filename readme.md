@@ -81,3 +81,72 @@ HAVING
     month IS NOT NULL AND total_revenue IS NOT NULL AND p.brand IS NOT NULL;
 ```
 Tabel difilter menggunakan perintah ‘HAVING’, dimana tabel hanya memunculkan hasil kolom month yang tidak kosong, total_revenue yang tidak kosong dan brand yang tidak kosong 
+
+### RESULT:
+
+Untuk melihat hasil dari temporary table yang telah dibuat, dapat melalui link berikut:
+
+https://docs.google.com/spreadsheets/d/13Mc-sELwrpduwDfWkI6_o1qsVCL_wC1L_gnVuHgI8dI/edit?usp=sharing
+
+
+## Mencari Produk Dengan Penjualan Tertinggi Setiap Bulan
+
+Setelah membuat temporary table, kita akan melakukan kueri untuk mencari produk dengan penjualan tertinggi setiap bulannya, pada kasus ini, penjualan tertinggi memiliki dua kriteria yaitu: total penjualan item tertinggi dan total pendapatan tertinggi 
+
+### Langkah 1:
+
+```bash
+SELECT 
+    month, 
+    product_name, 
+    brand,
+    category,
+    total_sales,
+    ROUND(total_revenue,2) AS total_revenue,
+    status    
+```
+
+Memunculkan kolom month, product_name, brand, category, total_sales, total_revenue, dan status
+
+untuk kolom total_revenue akan di dibulatkan menjadi 2 bilangan dengan perintah ‘ROUND’
+
+### Langkah 2:
+
+```bash
+FROM 
+    (
+        SELECT 
+            month, 
+            product_name,
+            brand,
+            category, 
+            total_sales,
+            total_revenue,
+            status,
+            ROW_NUMBER() OVER (PARTITION BY month ORDER BY total_sales DESC, total_revenue DESC) as row_num
+        FROM 
+           report_monthly_orders_product_agg
+    ) 
+```
+Kita akan melakukan subquery, dimana subquery ini berfungsi untuk memunculkan informasi produk berdasarkan partisi month yang diurutkan mulai dari total_sales terbesar (jika total_sales beberapa produk sama pada satu bulan, maka akan diurutkan kembali mulai dari total revenue yang terbesar) dan diambil dari temporary tabel  ‘report_monthly_orders_product_agg’
+
+### Langkah 3:
+
+```bash
+WHERE 
+    row_num = 1
+```
+Kueri ini memastikan agar hanya produk dengan penjualan tertinggi yang muncul pada setiap bulannya(row_num =1) 
+
+### Langkah 4:
+
+```bash
+ORDER BY month ASC;
+```
+Kolom diurutkan berdasarkan month dengan perintah ‘ORDER BY’ mulai dari yang terkecil ‘ASC’
+
+### RESULT:
+
+Untuk melihat produk dengan penjualan tertinggi setiap bulan, dapat melalui link berikut:
+
+https://docs.google.com/spreadsheets/d/15cAk66_9EbkABLJ1Z8e_RitiQvUBZFSZPknBkJ2FrY0/edit?usp=sharing
