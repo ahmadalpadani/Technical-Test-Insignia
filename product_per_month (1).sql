@@ -14,7 +14,6 @@ LEFT JOIN
     `bigquery-public-data.thelook_ecommerce.order_items` o
 ON 
     p.id = o.product_id
-
 WHERE
     o.status = 'Complete'
 GROUP BY 
@@ -22,8 +21,7 @@ GROUP BY
     month,
     o.status,
     p.brand,
-    p.category   
-     
+    p.category        
 HAVING
     month IS NOT NULL AND total_revenue IS NOT NULL AND p.brand IS NOT NULL;
 
